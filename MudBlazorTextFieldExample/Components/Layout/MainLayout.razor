@@ -1,0 +1,83 @@
+﻿@using System.ComponentModel.DataAnnotations
+@inherits LayoutComponentBase
+
+<MudThemeProvider IsDarkMode="true" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<EditForm Model="@model" OnValidSubmit="Submit">
+    <DataAnnotationsValidator />
+    <MudCard Style="width: 100%" Class="mb-3">
+        <MudCardContent>
+            <MudTextField
+                T="string"
+                Immediate="true"
+                OnKeyDown="HandleKeyDown"
+                KeyDownPreventDefault="_preventDefault"
+                @bind-Value="model.Prompt"
+                Placeholder="Type a message..."
+                Variant="Variant.Filled"
+                For="@(() => model.Prompt)"
+                AutoGrow
+                MaxLines="14"
+                TextChanged="TextChangedTest"/>
+        </MudCardContent>
+        <MudCardActions Class="pt-0">
+            <MudSpacer/>
+            <MudTooltip Text="Submit">
+                <MudIconButton ButtonType="ButtonType.Submit" Icon="@Icons.Material.Filled.Send" Size="Size.Small" Color="Color.Primary"></MudIconButton>
+            </MudTooltip>
+        </MudCardActions>
+    </MudCard>
+    @foreach (var message in messages) {
+        <div>@message</div>
+    }
+</EditForm>
+
+@code {
+    bool _preventDefault;
+    List<string> messages = new();
+    PromptForm model = new PromptForm();
+
+    public class PromptForm
+    {
+        [Required]
+        public string Prompt { get; set; }
+    }
+
+    protected void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !e.ShiftKey)
+        {
+            _preventDefault = true;
+            messages.Add("PreventDefault set to true");
+            Submit();
+        }
+        else
+        {
+            _preventDefault = false;
+            messages.Add("PreventDefault set to false");
+        }
+    }
+
+    public void OnValidSubmit(EditContext context)
+    {
+        model.Prompt = string.Empty;
+        messages.Add("OnValidSubmit Successful");
+        StateHasChanged();
+    }
+
+    public void Submit()
+    {
+        messages.Add($"Prompt: {model.Prompt}");
+        model.Prompt = string.Empty;
+        messages.Add($"Start StateHasChanged");
+        StateHasChanged();
+        messages.Add($"End StateHasChanged");
+    }
+
+    public void TextChangedTest(string text)
+    {
+        messages.Add($"TextChanged PreventDefaultValue: {_preventDefault} : text: {text}");
+    }
+}
