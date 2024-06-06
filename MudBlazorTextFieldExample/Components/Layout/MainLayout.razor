@@ -1,4 +1,5 @@
-﻿@using System.ComponentModel.DataAnnotations
+﻿@page "/"
+@using System.ComponentModel.DataAnnotations
 @inherits LayoutComponentBase
 
 <MudThemeProvider IsDarkMode="true" />
@@ -7,13 +8,14 @@
 
 <EditForm Model="@model" OnValidSubmit="Submit">
     <DataAnnotationsValidator />
-    <MudCard Style="width: 100%" Class="mb-3">
+    <MudCard Style="width: 250px" Class="mb-3">
         <MudCardContent>
             <MudTextField
                 T="string"
                 Immediate="true"
                 OnKeyDown="HandleKeyDown"
                 KeyDownPreventDefault="_preventDefault"
+                TextUpdateSuppression="false"
                 @bind-Value="model.Prompt"
                 Placeholder="Type a message..."
                 Variant="Variant.Filled"
@@ -50,34 +52,23 @@
         if (e.Key == "Enter" && !e.ShiftKey)
         {
             _preventDefault = true;
-            messages.Add("PreventDefault set to true");
             Submit();
         }
         else
         {
             _preventDefault = false;
-            messages.Add("PreventDefault set to false");
         }
-    }
-
-    public void OnValidSubmit(EditContext context)
-    {
-        model.Prompt = string.Empty;
-        messages.Add("OnValidSubmit Successful");
-        StateHasChanged();
     }
 
     public void Submit()
     {
         messages.Add($"Prompt: {model.Prompt}");
         model.Prompt = string.Empty;
-        messages.Add($"Start StateHasChanged");
         StateHasChanged();
-        messages.Add($"End StateHasChanged");
     }
 
     public void TextChangedTest(string text)
     {
-        messages.Add($"TextChanged PreventDefaultValue: {_preventDefault} : text: {text}");
+        messages.Add($"Text changed: '{text}'");
     }
 }
